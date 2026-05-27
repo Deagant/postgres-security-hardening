@@ -1,7 +1,7 @@
 # PostgreSQL Security Hardening
 
-Exercice de durcissement PostgreSQL réalisé en environnement contrôlé.  
-Objectif : identifier des permissions excessives, corriger les accès dangereux et appliquer le principe du moindre privilège.
+Trois exercices de sécurité PostgreSQL réalisés en lab autorisé.  
+Objectif : comprendre les erreurs de configuration courantes, les identifier sur un environnement défaillant, puis les corriger.
 
 ---
 
@@ -9,21 +9,46 @@ Objectif : identifier des permissions excessives, corriger les accès dangereux 
 
 | Élément | Détail |
 |---|---|
-| Type | Exercice de formation |
-| Environnement | Base PostgreSQL de lab fournie dans un cadre pédagogique |
+| Type | Exercices de formation — Jedha Fullstack Cybersécurité |
+| Environnement | Serveurs PostgreSQL de lab (local et distant) |
 | Périmètre | Autorisé et contrôlé |
-| Données sensibles | Supprimées ou anonymisées |
+| Données | Fictionnelles — aucune donnée réelle publiée |
 
 ---
 
-## Points traités
+## Exercices réalisés
 
-- Révision des rôles et utilisateurs
-- Suppression de privilèges excessifs (DELETE, INSERT, UPDATE non justifiés)
-- Révocation d'accès à des bases sensibles
-- Renforcement du chiffrement des mots de passe (SCRAM-SHA-256)
-- Documentation des risques et corrections
-- Vérification après chaque correction
+### Exercice 1 — Gestion des rôles et permissions (`business_db`)
+
+Création d'une hiérarchie de rôles sur une base avec 3 tables (`customers`, `items`, `orders`) :
+
+- Rôle de groupe `sales` sans connexion directe
+- Utilisateur `bob` rattaché au groupe `sales`
+- Rôle avancé `senior_sales` avec permissions supplémentaires (`UPDATE`, `INSERT`)
+- Vérification des refus d'accès : `bob` ne peut pas lire `items` → `permission denied` confirmé
+
+### Exercice 2 — Audit d'un environnement défaillant (`clinic_db`)
+
+Identification de 5 faiblesses sur un serveur PostgreSQL distant :
+
+| # | Faiblesse | Impact |
+|---|---|---|
+| 1 | Mot de passe trivial sur `secretary` | Compromission par force brute immédiate |
+| 2 | Données personnelles lisibles par un compte sans besoin métier | Escalade de compte via données extraites |
+| 3 | Droit `DELETE` excessif sur `steven_carr` | Suppression de l'intégralité d'une table critique |
+| 4 | Clé de chiffrement `pgcrypto` visible dans les journaux PostgreSQL | Déchiffrement de données médicales |
+| 5 | Transmission du mot de passe sans SSL (capturé en `.pcap`) | Vol de credential sur le réseau |
+
+### Exercice 3 — Correction du désordre
+
+Correction systématique de toutes les faiblesses identifiées :
+
+- Activation de `scram-sha-256` + redéfinition des mots de passe
+- `REVOKE DELETE` sur `steven_carr`
+- `REVOKE CONNECT` sur `logs_db` pour `steven_carr` et `PUBLIC`
+- Suppression de `logs_db` (base inutile et dangereuse)
+- Protection de la clé de chiffrement via variable psql (n'apparaît plus dans les logs)
+- Remplacement de `trust` par `scram-sha-256` dans `pg_hba.conf`
 
 ---
 
@@ -31,24 +56,26 @@ Objectif : identifier des permissions excessives, corriger les accès dangereux 
 
 | Fichier | Contenu |
 |---|---|
-| `report.md` | Rapport structuré : problèmes identifiés, corrections, analyse de risque |
-| `commands.sql` | Commandes SQL anonymisées d'audit et de correction |
-| `notes.md` | Référence sur les privilèges et bonnes pratiques PostgreSQL |
+| `report.md` | Rapport complet des 3 exercices — faiblesses, contexte, corrections, analyse |
+| `commands.sql` | Commandes SQL des exercices, avec commentaires et placeholders |
+| `notes.md` | Référence sur les privilèges PostgreSQL et bonnes pratiques |
 | `CHECKLIST.md` | Checklist avant publication |
 
 ---
 
 ## Compétences démontrées
 
-- Audit de rôles et privilèges PostgreSQL
+- Création et gestion de rôles PostgreSQL (groupes, utilisateurs, héritage)
+- Audit de permissions : `\du`, `\l`, `information_schema`, `pg_database`
+- Identification de configurations dangereuses : `trust`, `md5`, logs exposés, droits excessifs
 - Application du principe du moindre privilège
-- Révocation d'accès dangereux
-- Renforcement du chiffrement des mots de passe
+- Lecture de journaux PostgreSQL pour identifier des fuites de configuration
+- Analyse réseau basique : lecture d'un `.pcap` pour identifier une transmission de mot de passe en clair
 - Documentation technique orientée remédiation
 
 ---
 
 ## Avertissement
 
-Exercice réalisé dans un cadre légal, éducatif et autorisé.  
-Aucune donnée réelle ou sensible n'est publiée dans ce dépôt.
+Exercices réalisés dans un cadre légal, éducatif et autorisé.  
+Les données sont fictionnelles. Les mots de passe des exercices ont été remplacés par des placeholders.

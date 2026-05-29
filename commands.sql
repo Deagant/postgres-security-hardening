@@ -120,6 +120,10 @@ WHERE full_name = 'John West';
 SELECT pg_reload_conf();
 ALTER ROLE admin WITH PASSWORD '[nouveau_mdp_fort_admin]';
 
+-- piège : j'ai fait ALTER ROLE avant pg_reload_conf() la première fois.
+-- pg_authid montrait encore md5 après le changement — config pas rechargée.
+-- ordre correct : reload d'abord, ALTER ROLE ensuite.
+
 
 -- ============================================================
 --  AUDIT GÉNÉRAL — Commandes de vérification utiles

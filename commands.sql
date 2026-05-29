@@ -67,6 +67,9 @@ DELETE FROM doctors;
 -- Observation : la commande s'exécute — droit DELETE excessif confirmé
 
 -- Consulter les journaux pour identifier les problèmes de configuration
+-- NOTE: postgres_log est une foreign table configurée spécifiquement dans ce lab Jedha (file_fdw).
+-- En dehors de ce lab, les logs PostgreSQL sont dans des fichiers, pas une table SQL.
+-- Alternative standard : SELECT pg_read_file('postgresql.log') ou passer par pg_log.
 SELECT log_time, message FROM postgres_log
 ORDER BY log_time
 LIMIT 50;
@@ -79,9 +82,7 @@ WHERE full_name = 'John West';
 -- Résultat : 'Ear Infection' — données médicales déchiffrées avec la clé exposée dans les logs
 
 
--- ============================================================
---  EXERCICE 3 — Corrections (réparation du désordre)
--- ============================================================
+-- Ex. 3 — Corrections après audit clinic_db
 
 -- 1. Activer scram-sha-256 et redéfinir les mots de passe
 ALTER SYSTEM SET password_encryption = 'scram-sha-256';

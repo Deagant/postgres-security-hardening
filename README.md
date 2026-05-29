@@ -77,5 +77,4 @@ Correction systématique de toutes les faiblesses identifiées :
 
 ## Avertissement
 
-Exercices réalisés dans un cadre légal, éducatif et autorisé.  
-Les données sont fictionnelles. Les mots de passe des exercices ont été remplacés par des placeholders.
+Contexte : formation Jedha, environnement isolé. Les données sont fictionnelles, les mots de passe remplacés par des placeholders.
